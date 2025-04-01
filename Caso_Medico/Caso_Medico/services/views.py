@@ -9,5 +9,11 @@ def dashboard(request):
 
 def query(request):
     return render(request, 'query/query.html')
+
+
 def personalized(request):
     return render(request, 'dashboard/personalized.html')
+
+def charge_csv(request):
+    #Pablo pone el código aquí
+    return 1

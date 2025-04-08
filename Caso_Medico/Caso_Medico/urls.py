@@ -16,12 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from Caso_Medico.services.views import dashboard, query, personalized
+from Caso_Medico.services.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
     path('query/', query, name  = 'query'),
     path('personalized/', personalized, name='personalized'),
+    path('data-graph/', get_graph_data, name='data-graph'),
 ]
 

@@ -1,0 +1,109 @@
+openapi: 3.0.4
+info:
+  title: Api Caso Médico
+  description: |-
+    Esto es el contrato de la api que se va a usar en este proyecto que es caso médico
+  termsOfService: https://swagger.io/terms/
+  version: 1.0.0
+servers:
+  - url: https://localhost:8000
+tags:
+  - name: Graphs
+    description: Getting all data for the graphs
+  - name: Querys
+    description: How to formulate the querys calls
+paths:
+  /data-graph/:
+    get:
+      tags: 
+        - Graphs
+      summary: Obtener datos para una gráfica
+      description: Devuelve listas de valores asociadas a dos atributos de dos modelos distintos.
+      parameters:
+        - name: clase_x
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: atributo_x
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: clase_y
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: atributo_y
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Listas con valores para los ejes X e Y
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ejeX:
+                    type: array
+                    items:
+                      type: string
+                  ejeY:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Clase o atributo no válidos
+        '405':
+          description: Método HTTP no permitido
+        '500':
+          description: Error interno del servidor
+  /execute-query/:
+    post:
+      tags:
+        - Querys
+      summary: Ejecutar condiciones complejas con AND/OR
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryGroup'
+      responses:
+        '200':
+          description: Resultados filtrados
+components:
+  schemas:
+    QueryGroup:
+      type: object
+      properties:
+        connector:
+          type: string
+          enum: [AND, OR]
+        conditions:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/QueryGroup'
+              - $ref: '#/components/schemas/QueryCondition'
+    QueryCondition:
+      type: object
+      required: [model, attribute, operator, value]
+      properties:
+        model:
+          type: string
+          example: Patient
+        attribute:
+          type: string
+          example: age
+        operator:
+          type: string
+          enum: ["=", "!=", ">", "<", ">=", "<="]
+        value:
+          oneOf:
+            - type: string
+            - type: number

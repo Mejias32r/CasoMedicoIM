@@ -11,7 +11,7 @@ class Patient(models.Model):
     qc = models.FloatField()
     
     def __str__(self):
-        return f"Patient {self.patient_id} ({self.sex}, {self.age} years)"
+        return f"Patient {self.job_number} ({self.sex}, {self.age} years)"
 
 class TissueMetrics(models.Model):
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE)

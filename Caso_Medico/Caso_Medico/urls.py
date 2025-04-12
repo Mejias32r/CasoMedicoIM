@@ -24,5 +24,7 @@ urlpatterns = [
     path('query/', query, name  = 'query'),
     path('personalized/', personalized, name='personalized'),
     path('data-graph/', get_graph_data, name='data-graph'),
+    path('query-builder/', query_builder_view, name='query-builder'),
+    path('charge_csv/', charge_csv, name='charge_csv'),
 ]
 

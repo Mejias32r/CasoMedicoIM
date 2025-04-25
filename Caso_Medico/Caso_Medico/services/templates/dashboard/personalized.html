@@ -2,6 +2,8 @@
 {% block content %}
 <html lang="en">
 <head>
+  <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+
   <meta charset="UTF-8">
   <title>Modal Example</title>
   <style>
@@ -11,17 +13,21 @@
       padding: 20px;
     }
 
+    .plotly .modebar {
+      top: 40px !important; /* Move the mode bar down */
+    }
+
     /* The Modal (background) */
     .modal {
-      display: none; /* Hidden by default */
-      position: fixed; /* Stay in place */
-      z-index: 1; /* Sit on top */
+      display: none; 
+      position: fixed; 
+      z-index: 1; 
       left: 0;
       top: 0;
-      width: 100%; /* Full width */
-      height: 100%; /* Full height */
-      overflow: auto; /* Enable scroll if needed */
-      background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgba(0, 0, 0, 0.5); 
     }
 
     /* Modal Content */
@@ -71,18 +77,19 @@
         margin: 30px auto;
     }
 
-     .contenedor-con{
-        display: flex;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 15px;
-        background-color: #fefefe;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
-        height: 400px;
-        margin: 30px auto;
+    .contenedor-con {
+      display: flex;
+      flex-wrap: wrap; /* Allow wrapping to the next row */
+      gap: 20px; /* Add spacing between charts */
+      justify-content: center; /* Center the charts horizontally */
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      background-color: #fefefe;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin: 30px auto;
     }
-
+      
     .top-display{
         display: flex;
         gap: 10px;
@@ -148,18 +155,76 @@
   justify-content: flex-start;
 }
 
+/*Chart*/
+.deletechartbtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.deletechartbtn:hover {
+  color: #e74c3c;
+}
+
+.chart-container {
+  display: inline-block;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  position: relative;
+  max-width: 700px;
+  margin-top: 10px;
+  margin-bottom: 20px; 
+  width: 100%; 
+  height: 400px;
+  overflow: hidden; 
+}
+
+.floating-action-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #12E3CD;
+  color: white;
+  font-size: 24px;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.floating-action-btn:hover {
+  background-color: #12B6E3;
+  transform: scale(1.1);
+}
+
 
   </style>
 </head>
-<body>
-<div class="contenedor-con">
-    <div class="contenedor-grafica">
-      <button id="openModalBtn" class="creargrafica">Create Chart</button>
+
+<button id="addChartFAB" class="floating-action-btn" title="Add Chart">+</button>
+<!-- Page content -->
+<div id="main" class="contenedor-con">
+  
+    
+    <div id="chartContainer" class="chart-container" style="display: none;">
+      <button onclick="removeChart()" class="deletechartbtn">✖</button>
+      <!-- Chart will be rendered here -->
     </div>
-    <div id="chartTriggersContainer" class="contenedor-grafica">
-      <button id="addChartTrigger" style="margin-top: 10px;">➕ New Chart</button>
-    </div>
+
   </div>
+  <!-- Page end-->
+
   <!-- The Modal -->
   <div id="myModal" class="modal">
     <div class="modal-content">
@@ -178,7 +243,7 @@
                 <p>X axis </p>
 
                 <label for="classSelectX">Class</label>
-                <select id="classSelectX" name="optionsX">
+                <select id="classSelectX" name="optionsX" autocomplete="off">
                     <option value="" disabled selected>Select class</option>
                     <option value="TissueMetrics">TissueMetrics</option>
                     <option value="Cerebrum">Cerebrum</option>
@@ -192,14 +257,14 @@
                     <option value="Accumbens">Accumbens</option>
                 </select>
                 <p></p>
-                <label for="valueSelectX">Attributes</label>
+                <label for="valueSelectX" autocomplete="off">Attributes</label>
                 <select id="valueSelectX" name="valuesX"></select>
             </div>
-            <div>
+            <div id="yAxis">
                 <p>Y axis</p>
 
                 <label for="classSelectY">Class</label>
-                <select id="classSelectY" name="optionsY">
+                <select id="classSelectY" name="optionsY" autocomplete="off">
                     <option value="" disabled selected>Select class</option>
                     <option value="TissueMetrics">TissueMetrics</option>
                     <option value="Cerebrum">Cerebrum</option>
@@ -213,7 +278,7 @@
                     <option value="Accumbens">Accumbens</option>
                 </select>
                 <p></p>
-                <label for="valueSelectY">Attributes</label>
+                <label for="valueSelectY autocomplete="off"">Attributes</label>
                 <select id="valueSelectY" name="valuesY"></select>
 
             </div>
@@ -222,13 +287,13 @@
         <hr>
         <div>
             <div>
-                <label for="plotSelect">Tipos de grafica</label>
-                <select id="plotSelect" name="plot">
+                <label for="plotSelect">Plot types</label>
+                <select id="plotSelect" name="plot" autocomplete="off">
                     <option value="" disabled selected>-</option>
-                    <option value="Histogram">Histogram</option>
-                    <option value="Bar chart">Bar chart</option>
+                    <option value="histogram" hidden="true"">Histogram</option>
+                    <option value="bar">Bar chart</option>
                     <option value="Line chart">Line chart</option>
-                    <option value="Scatter">Scatter</option>
+                    <option value="scatter">Scatter</option>
                 </select>
             </div>
         </div>
@@ -242,16 +307,18 @@
     </div>
   </div>
 
+  
+
   <script>
     const modal = document.getElementById("myModal");
-    const btn = document.getElementById("openModalBtn");
+    const addChartFABbtn = document.getElementById("addChartFAB");
     const closeBtn = document.querySelector(".close");
     const btnClose = document.querySelector(".btn-close");
     const btnAdd= document.querySelector(".btn-add");
 
-    btn.onclick = function () {
-      modal.style.display = "block";
-    }
+    addChartFAB.addEventListener("click", function () {
+       modal.style.display = "block";
+    });
 
     closeBtn.onclick = function () {
       modal.style.display = "none";
@@ -259,11 +326,100 @@
     btnClose.onclick = function () {
       modal.style.display = "none";
     }
-    btnAdd.onclick = function () {
-      modal.style.display = "none";
-    }
 
     window.onclick = function (event) {
+      if (event.target == modal) {
+      modal.style.display = "none";
+      }
+    };
+
+    btnAdd.onclick = async function () {
+      const plotType = document.getElementById("plotSelect").value;
+      const classSelectX = document.getElementById("classSelectX").value;
+      const valueSelectX = document.getElementById("valueSelectX").value;
+      const classSelectY = document.getElementById("classSelectY").value;
+      const valueSelectY = document.getElementById("valueSelectY").value;
+     
+      
+      if (plotType !== "histogram") {
+        if (!plotType || !classSelectX || !valueSelectX || !classSelectY || !valueSelectY) {
+          alert("Please select a plot type and all required fields.");
+          return;
+        }
+      } 
+      // Validation for histogram
+      else if (plotType === "histogram") {
+        if (!classSelectX || !valueSelectX) {
+          alert("Please select a class and attribute for the histogram.");
+          return;
+        }
+      }
+      
+    // Disable button while loading
+    btnAdd.disabled = true;
+    btnAdd.textContent = "Loading...";
+
+    try {
+      const data = await fetchGraphData(); 
+
+      const chartWrapper = document.createElement("div");
+    chartWrapper.className = "chart-container";
+    const chartId = "chart_" + Date.now(); // unique ID
+    chartWrapper.id = chartId;
+
+       // Add a close button to the chart container
+    const closeButton = document.createElement("button");
+    closeButton.className = "deletechartbtn";
+    closeButton.textContent = "✖";
+    closeButton.onclick = function () {
+      chartWrapper.remove();
+    };
+
+    // Add a div for the chart
+    const chartDiv = document.createElement("div");
+    chartDiv.id = chartId; // Use the same ID for the chart div
+
+    // Append the close button and chart div to the wrapper
+    chartWrapper.appendChild(closeButton);
+    chartWrapper.appendChild(chartDiv);
+
+    // Append the chart wrapper to the main container
+    const parentContainer = document.getElementById("main");
+    parentContainer.appendChild(chartWrapper);
+
+    const plotType = document.getElementById("plotSelect").value;
+
+    renderPlot(data.ejeX, data.ejeY, chartDiv.id, plotType);
+
+
+
+    // Close the modal
+    modal.style.display = "none";
+  } catch (error) {
+    console.error("Error fetching or plotting data:", error);
+  }
+
+  btnAdd.disabled = false;
+  btnAdd.textContent = "Add";
+};
+
+// Histogram
+
+const plotSelect = document.getElementById("plotSelect");
+const yAxisContainer = document.getElementById("yAxis"); // Updated to use the new id
+
+plotSelect.addEventListener("change", function () {
+  if (plotSelect.value === "histogram") {
+    // Hide Y-axis container
+    yAxisContainer.style.display = "none";
+  } else {
+    // Show Y-axis container
+    yAxisContainer.style.display = "block";
+  }
+});
+
+
+  window.onclick = function (event) {
       if (event.target == modal) {
         modal.style.display = "none";
       }
@@ -276,6 +432,7 @@
   const valueSelectY = document.getElementById("valueSelectY");
   const classSelectY = document.getElementById("classSelectY");
 
+  // Database elements
   const options = {
   TissueMetrics: [
     "tissue_wm_cm3", "tissue_wm_percentage", "tissue_gm_cm3", "tissue_gm_percentage",
@@ -379,12 +536,137 @@
   // Add the new button to the container
   chartTriggersContainer.appendChild(chartButton);
 
+  });
+</script>
 
 
+
+
+<script>
+  //Select reset
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById("chartTypeSelect").selectedIndex = 0;
+    document.getElementById("classSelectX").selectedIndex = 0;
+    document.getElementById("valueSelectX").selectedIndex = 0;
+    document.getElementById("classSelectY").selectedIndex = 0;
+    document.getElementById("valueSelectY").selectedIndex = 0;
+
+    console.log("Selects reset on window load");
+  });
+
+  // Function to remove the chart
+  function removeChart() {
+    const chartDiv = document.getElementById('chartContainer');
+    chartDiv.remove();
+  }
+
+  // Get data from the server
+  async function fetchGraphData() {
+    const class_x = document.getElementById('classSelectX').value;
+    const atributo_x = document.getElementById('valueSelectX').value;
+    const class_y = document.getElementById('classSelectY').value;
+    const atributo_y = document.getElementById('valueSelectY').value;
+
+    const params = new URLSearchParams({
+      clase_x: class_x,
+      atributo_x: atributo_x,
+      clase_y: class_y,
+      atributo_y: atributo_y
+    });
+
+    const response = await fetch(`/data-graph/?${params.toString()}`);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+
+    const data = await response.json();
+    return data;  
+  }
+
+  
+
+//Create a plot with data
+function renderPlot(x, y, chartId, plotType) {
+    
+  if (plotType === 'scatter') {
+        trace = {
+            x: x,
+            y: y,
+            mode: 'markers',
+            type: 'scatter',
+            marker: { color: 'blue' },
+        };
+    } else if (plotType === 'bar') {
+        trace = {
+            x: x,
+            y: y,
+            type: 'bar',
+            marker: { color: 'green' },
+        };
+    } else if (plotType === 'histogram') {
+        trace = {
+            x: x,
+            type: 'histogram',
+            marker: { color: 'purple' },
+        };
+    } else if (plotType === 'Line chart') {
+        trace = {
+            x: x,
+            y: y,
+            mode: 'lines',
+            type: 'scatter',
+            line: { color: 'red' },
+        };
+    } else {
+        console.error('Unsupported plot type:', plotType);
+        return;
+    }
+
+    const layout = {
+      title: {
+            text: `Plot of ${document.getElementById('classSelectX').value} ${document.getElementById('valueSelectX').value} vs ${document.getElementById('classSelectY').value} ${document.getElementById('valueSelectY').value}`, // Dynamic title
+            font: {
+                size: 16, // Adjust the font size
+                color: 'black', // Title color
+            },
+        },
+        xaxis: {
+            title: {
+                text: `X axis: ${document.getElementById('valueSelectX').value}`, // Add the X-axis label here
+                font: {
+                    size: 14,
+                    color: 'black',
+                },
+            },
+        },
+        yaxis: {
+            title: {
+                text: `Y axis: ${document.getElementById('valueSelectY').value}`, // Add the Y-axis label here
+                font: {
+                    size: 14,
+                    color: 'black',
+                },
+            },
+        },
+        
+    };
+    const config = {
+        responsive: true, // Enable responsiveness
+    };
+
+
+    Plotly.newPlot(chartId, [trace], layout);
+}
+
+const addChartFAB = document.getElementById("addChartFAB");
+
+addChartFAB.addEventListener("click", function () {
+  modal.style.display = "block";
 });
 
-  </script>
 
-</body>
+
+
+</script>
+
+
 </html>
 {% endblock content%}

@@ -245,6 +245,7 @@
                 <label for="classSelectX">Class</label>
                 <select id="classSelectX" name="optionsX" autocomplete="off">
                     <option value="" disabled selected>Select class</option>
+                    <option value="Patient">Patient</option>
                     <option value="TissueMetrics">TissueMetrics</option>
                     <option value="Cerebrum">Cerebrum</option>
                     <option value="Cerebellum">Cerebellum</option>
@@ -266,6 +267,7 @@
                 <label for="classSelectY">Class</label>
                 <select id="classSelectY" name="optionsY" autocomplete="off">
                     <option value="" disabled selected>Select class</option>
+                    <option value="Patient">Patient</option>
                     <option value="TissueMetrics">TissueMetrics</option>
                     <option value="Cerebrum">Cerebrum</option>
                     <option value="Cerebellum">Cerebellum</option>
@@ -290,7 +292,7 @@
                 <label for="plotSelect">Plot types</label>
                 <select id="plotSelect" name="plot" autocomplete="off">
                     <option value="" disabled selected>-</option>
-                    <option value="histogram" hidden="true"">Histogram</option>
+                    <option value="histogram" hidden="true">Histogram</option>
                     <option value="bar">Bar chart</option>
                     <option value="Line chart">Line chart</option>
                     <option value="scatter">Scatter</option>
@@ -434,6 +436,9 @@ plotSelect.addEventListener("change", function () {
 
   // Database elements
   const options = {
+  Patient: [
+    "sex", "age", "scale_factor", "snr", "msnr", "qc"
+  ],
   TissueMetrics: [
     "tissue_wm_cm3", "tissue_wm_percentage", "tissue_gm_cm3", "tissue_gm_percentage",
     "tissue_csf_cm3", "tissue_csf_percentage", "tissue_brain_cm3", "tissue_brain_percentage",

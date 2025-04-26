@@ -68,10 +68,19 @@
 fetch('/data-graph/?clase_x=Patient&atributo_x=age&clase_y=TissueMetrics&atributo_y=tissue_brain_cm3')
   .then(response => response.json())
   .then(data => {
-    const scatterData = data.ejeX.map((x, i) => ({
-      x: x,
-      y: data.ejeY[i]
-    }));
+    const scatterData = [];
+
+    data.ejeX.forEach((edad, i) => {
+      const edadNum = parseFloat(edad);
+      const volumen = parseFloat(data.ejeY[i]);
+
+      if (!isNaN(edadNum) && edadNum > 0 && edadNum <= 100 && !isNaN(volumen)) {
+        scatterData.push({
+          x: edadNum,
+          y: volumen
+        });
+      }
+    });
 
     new Chart(document.getElementById('scatterChart').getContext('2d'), {
       type: 'scatter',
@@ -84,12 +93,13 @@ fetch('/data-graph/?clase_x=Patient&atributo_x=age&clase_y=TissueMetrics&atribut
       },
       options: {
         scales: {
-          x: { title: { display: true, text: 'Edad' }},
+          x: { title: { display: true, text: 'Edad (años)' }},
           y: { title: { display: true, text: 'Volumen Cerebral (cm³)' }}
         }
       }
     });
   });
+
 
 // Gráfica 2
 fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=sex')
@@ -123,11 +133,11 @@ fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=se
     });
   });
 
-// Gráfica 3
+// Gráfica 3 - Edad media por sexo
 fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=age')
   .then(response => response.json())
   .then(data => {
-    if (data.ejeX.length === 0) {
+    if (!data.ejeX || data.ejeX.length === 0) {
       document.getElementById('edadSexoChart').parentNode.innerHTML = '<p>No hay datos de edad disponibles.</p>';
       return;
     }
@@ -136,8 +146,11 @@ fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=ag
     const mujeresEdad = [];
 
     data.ejeX.forEach((sexo, idx) => {
-      if (sexo === 'Male') hombresEdad.push(data.ejeY[idx]);
-      else if (sexo === 'Female') mujeresEdad.push(data.ejeY[idx]);
+      const edad = Number(data.ejeY[idx]);
+      if (!isNaN(edad)) {
+        if (sexo === 'Male') hombresEdad.push(edad);
+        else if (sexo === 'Female') mujeresEdad.push(edad);
+      }
     });
 
     const media = arr => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -153,6 +166,7 @@ fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=ag
         }]
       },
       options: {
+        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
@@ -162,5 +176,7 @@ fetch('/data-graph/?clase_x=Patient&atributo_x=sex&clase_y=Patient&atributo_y=ag
       }
     });
   });
+
+
 </script>
 {% endblock %}

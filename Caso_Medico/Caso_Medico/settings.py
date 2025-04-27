@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'adminlte3',
     'adminlte3_theme',
-
     'Caso_Medico.services',
 ]
 

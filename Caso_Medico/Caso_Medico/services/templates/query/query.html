@@ -137,11 +137,19 @@
   let groupId = 0;
   let rootGroupCreated = false;
 
-  const clasesDisponibles = ["Patient", "TissueMetrics", "Cerebellum"];
+  const clasesDisponibles = ["Patient", "TissueMetrics", "Cerebrum", "Cerebellum","LateralVentricles","Caudate", "Putamen", "GlobusPallidus", "Hippocampus", "Amygdala", "Accumbens"];
   const atributosPorClase = {
     "Patient": ["age", "sex"],
-    "TissueMetrics": ["tissue_wm_cm3", "tissue_gm_cm3"],
-    "Cerebellum": ["total_cm3", "asymmetry"]
+    "TissueMetrics": ["tissue_wm_cm3", "tissue_gm_cm3", "t_gm_cm3", "t_gm_percentage"],
+    "Cerebrum": ["total_cm3", "asymmetry", "t_gm_cm3", "t_gm_percentage"],
+    "Cerebellum": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+    "LateralVentricles": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+    "Caudate": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+    "Putamen": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+    "GlobusPallidus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+    "Hippocampus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+    "Amygdala": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+    "Accumbens": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"]
   };
   const operadores = [">", "<", ">=", "<=", "==", "!="];
 

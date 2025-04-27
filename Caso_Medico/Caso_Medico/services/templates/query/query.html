@@ -135,8 +135,7 @@
 
 <script>
   let groupId = 0;
-  let rootGroupCreated = false; // <-- nueva variable para controlar
-
+  let rootGroupCreated = false;
 
   const clasesDisponibles = ["Patient", "TissueMetrics", "Cerebellum"];
   const atributosPorClase = {
@@ -149,6 +148,9 @@
   function addCondition(container) {
     const div = document.createElement("div");
     div.style.marginTop = "10px";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.gap = "10px";
 
     const claseSelect = document.createElement("select");
     claseSelect.innerHTML = `<option disabled selected>Seleccionar clase</option>` +
@@ -157,30 +159,72 @@
     const atributoSelect = document.createElement("select");
     const operadorSelect = document.createElement("select");
     const valorInput = document.createElement("input");
-   
+
     valorInput.type = "number";
-    valorInput.style.marginLeft = "10px";
     valorInput.style.padding = "8px";
     valorInput.style.borderRadius = "8px";
     valorInput.style.border = "1px solid #ccc";
 
-    atributoSelect.style.marginLeft = "10px";
-    operadorSelect.style.marginLeft = "10px";
+    atributoSelect.style.padding = "8px";
+    operadorSelect.style.padding = "8px";
+    claseSelect.style.padding = "8px";
 
-    // Rellenar atributos cuando se seleccione una clase
+    // Rellenar atributos cuando se seleccione clase
     claseSelect.addEventListener("change", () => {
       const atributos = atributosPorClase[claseSelect.value] || [];
       atributoSelect.innerHTML = atributos.map(attr => `<option value="${attr}">${attr}</option>`).join("");
       operadorSelect.innerHTML = operadores.map(op => `<option value="${op}">${op}</option>`).join("");
+      operadorSelect.style.display = "inline"; // asegurarse que esté visible
+      if (!div.contains(operadorSelect)) div.insertBefore(operadorSelect, valorInput);
     });
+
+    // Cambiar input/operador si atributo es sex
+    atributoSelect.addEventListener("change", () => {
+      if (atributoSelect.value === "sex") {
+        // Quitar operador
+        operadorSelect.style.display = "none";
+        
+        // Cambiar valorInput a un select de sexo
+        const selectSexo = document.createElement("select");
+        selectSexo.style.padding = "8px";
+        selectSexo.style.borderRadius = "8px";
+        selectSexo.style.border = "1px solid #ccc";
+        selectSexo.innerHTML = `
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        `;
+        div.replaceChild(selectSexo, valorInput);
+      } else {
+        // Mostrar operador
+        operadorSelect.style.display = "inline";
+        
+        // Asegurar que sea un input tipo number
+        const inputNuevo = document.createElement("input");
+        inputNuevo.type = "number";
+        inputNuevo.style.padding = "8px";
+        inputNuevo.style.borderRadius = "8px";
+        inputNuevo.style.border = "1px solid #ccc";
+        div.replaceChild(inputNuevo, div.querySelector('select:last-of-type, input[type="text"], input[type="number"]'));
+      }
+    });
+
+    // Botón para eliminar SOLO esta condición
+    const removeButton = document.createElement('button');
+    removeButton.innerHTML = '❌';
+    removeButton.style.cssText = 'background:none; border:none; font-size:20px; cursor:pointer; color:#777;';
+    removeButton.onclick = () => {
+      div.remove();
+    };
 
     div.appendChild(claseSelect);
     div.appendChild(atributoSelect);
     div.appendChild(operadorSelect);
     div.appendChild(valorInput);
+    div.appendChild(removeButton);
 
     container.appendChild(div);
-  }
+}
+
 
   function showGroupOptions() {
     const container = document.getElementById('groups-container');
@@ -293,7 +337,7 @@ function ejecutarConsulta() {
     const data = buildQueryData();
     if (!data) return;
 
-    fetch('/query-builder/', {
+    fetch('/query-builder', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

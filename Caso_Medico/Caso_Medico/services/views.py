@@ -31,19 +31,24 @@ def get_graph_data(request):
         atributo_x = request.GET.get('atributo_x')
         clase_y = request.GET.get('clase_y')
         atributo_y = request.GET.get('atributo_y')
+        clase_z = request.GET.get('clase_z')
+        atributo_z = request.GET.get('atributo_z')
 
         try:
             # Obtener los modelos dinámicamente
             ModeloX = apps.get_model('services', clase_x)
             ModeloY = apps.get_model('services', clase_y)
+            ModeloZ = apps.get_model('services', clase_z)
 
             # Obtener datos
             datos_x = list(ModeloX.objects.values_list(atributo_x, flat=True))
             datos_y = list(ModeloY.objects.values_list(atributo_y, flat=True))
+            datos_z = list(ModeloZ.objects.values_list(atributo_z, flat=True))
 
             return JsonResponse({
                 "ejeX": datos_x,
-                "ejeY": datos_y
+                "ejeY": datos_y,
+                "ejeZ": datos_z
             })
 
         except LookupError:

@@ -15,7 +15,7 @@ tags:
 paths:
   /data-graph/:
     get:
-      tags: 
+      tags:   
         - Graphs
       summary: Obtener datos para una gráfica
       description: Devuelve listas de valores asociadas a dos atributos de dos modelos distintos.
@@ -38,6 +38,16 @@ paths:
         - name: atributo_y
           in: query
           required: true
+          schema:
+            type: string
+        -name : clase_z
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: atributo_z
+          in: query
+          required: false
           schema:
             type: string
       responses:

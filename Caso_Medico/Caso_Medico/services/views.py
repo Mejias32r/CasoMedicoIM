@@ -84,7 +84,7 @@ def get_graph_data(request):
 
 
 
-def parse_conditions(data, base_model='Patient'):
+def parse_conditions(data):
     """
     Construye un Q object recursivamente a partir del diccionario.
     """
@@ -126,8 +126,6 @@ def parse_conditions(data, base_model='Patient'):
         print (f"Full field: {full_field}")
         return Q(**{full_field: value})
 
-
-@csrf_exempt
 @require_http_methods(["POST"])
 def query_builder_view(request):
     if request.method != 'POST':

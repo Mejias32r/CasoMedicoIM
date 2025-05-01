@@ -32,15 +32,15 @@ paths:
             type: string
         - name: clase_y
           in: query
-          required: true
+          required: false
           schema:
             type: string
         - name: atributo_y
           in: query
-          required: true
+          required: false
           schema:
             type: string
-        -name : clase_z
+        - name : clase_z
           in: query
           required: false
           schema:
@@ -52,7 +52,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Listas con valores para los ejes X e Y
+          description: Listas con valores para los ejes X, Y y opcionalmente Z
           content:
             application/json:
               schema:
@@ -63,6 +63,10 @@ paths:
                     items:
                       type: string
                   ejeY:
+                    type: array
+                    items:
+                      type: string
+                  ejeZ:
                     type: array
                     items:
                       type: string

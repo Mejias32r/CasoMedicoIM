@@ -29,27 +29,38 @@ def get_graph_data(request):
     if request.method == 'GET':
         clase_x = request.GET.get('clase_x')
         atributo_x = request.GET.get('atributo_x')
-        clase_y = request.GET.get('clase_y')
-        atributo_y = request.GET.get('atributo_y')
-        clase_z = request.GET.get('clase_z')
-        atributo_z = request.GET.get('atributo_z')
+        clase_y = request.GET.get('clase_y')  # Optional
+        atributo_y = request.GET.get('atributo_y')  # Optional
+        clase_z = request.GET.get('clase_z')  # Optional
+        atributo_z = request.GET.get('atributo_z')  # Optional
 
         try:
             # Obtener los modelos dinámicamente
             ModeloX = apps.get_model('services', clase_x)
-            ModeloY = apps.get_model('services', clase_y)
-            ModeloZ = apps.get_model('services', clase_z)
-
-            # Obtener datos
             datos_x = list(ModeloX.objects.values_list(atributo_x, flat=True))
-            datos_y = list(ModeloY.objects.values_list(atributo_y, flat=True))
-            datos_z = list(ModeloZ.objects.values_list(atributo_z, flat=True))
 
-            return JsonResponse({
+            # Obtener datos para Y opcionalmente
+            datos_y = None
+            if clase_y and atributo_y:
+                ModeloY = apps.get_model('services', clase_y)
+                datos_y = list(ModeloY.objects.values_list(atributo_y, flat=True))
+
+            # Manejar Z opcionalmente
+            datos_z = None
+            if clase_z and atributo_z:
+                ModeloZ = apps.get_model('services', clase_z)
+                datos_z = list(ModeloZ.objects.values_list(atributo_z, flat=True))
+
+            # Construir la respuesta
+            response_data = {
                 "ejeX": datos_x,
-                "ejeY": datos_y,
-                "ejeZ": datos_z
-            })
+            }
+            if datos_y is not None:
+                response_data["ejeY"] = datos_y
+            if datos_z is not None:
+                response_data["ejeZ"] = datos_z
+
+            return JsonResponse(response_data)
 
         except LookupError:
             return JsonResponse({'error': 'Clase no encontrada'}, status=400)

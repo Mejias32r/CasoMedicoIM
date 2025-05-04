@@ -26,32 +26,62 @@ def charge_csv(request):
     return 1
 
 def get_graph_data(request):
-    if request.method == 'GET':
-        clase_x = request.GET.get('clase_x')
-        atributo_x = request.GET.get('atributo_x')
-        clase_y = request.GET.get('clase_y')
-        atributo_y = request.GET.get('atributo_y')
-
-        try:
-            # Obtener los modelos dinámicamente
-            ModeloX = apps.get_model('services', clase_x)
-            ModeloY = apps.get_model('services', clase_y)
-
-            # Obtener datos
-            datos_x = list(ModeloX.objects.values_list(atributo_x, flat=True))
-            datos_y = list(ModeloY.objects.values_list(atributo_y, flat=True))
-
-            return JsonResponse({
-                "ejeX": datos_x,
-                "ejeY": datos_y
-            })
-
-        except LookupError:
-            return JsonResponse({'error': 'Clase no encontrada'}, status=400)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    else:
+    if request.method != 'GET':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    clase_x = request.GET.get('clase_x')
+    atributo_x = request.GET.get('atributo_x')
+    clase_y = request.GET.get('clase_y')
+    atributo_y = request.GET.get('atributo_y')
+    clase_z = request.GET.get('clase_z')
+    atributo_z = request.GET.get('atributo_z')
+
+    resultado = {}
+
+    def obtener_datos_ordenados(clase, atributo):
+        if not clase or not atributo:
+            return None
+
+        Modelo = apps.get_model('services', clase)
+
+        if clase == "Patient":
+            return list(Modelo.objects.order_by('job_number').values_list(atributo, flat=True))
+
+        elif hasattr(Modelo, 'patient'):
+            return list(
+                Modelo.objects.select_related('patient')
+                .order_by('patient__job_number')
+                .values_list(atributo, flat=True)
+            )
+        elif hasattr(Modelo, 'patient_id'):
+            return list(
+                Modelo.objects.select_related('patient_id')
+                .order_by('patient_id__job_number')
+                .values_list(atributo, flat=True)
+            )
+        else:
+            raise ValueError(f"El modelo {clase} no tiene relación clara con Patient")
+
+    try:
+        if clase_x and atributo_x:
+            resultado["ejeX"] = obtener_datos_ordenados(clase_x, atributo_x)
+
+        if clase_y and atributo_y:
+            resultado["ejeY"] = obtener_datos_ordenados(clase_y, atributo_y)
+
+        if clase_z and atributo_z:
+            resultado["ejeZ"] = obtener_datos_ordenados(clase_z, atributo_z)
+
+        if not resultado:
+            return JsonResponse({'error': 'No se proporcionaron parámetros válidos'}, status=400)
+
+        return JsonResponse(resultado)
+
+    except LookupError:
+        return JsonResponse({'error': 'Clase no encontrada'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 
 def parse_conditions(data):

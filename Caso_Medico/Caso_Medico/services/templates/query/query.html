@@ -309,42 +309,49 @@ function collectGroup(groupDiv) {
   const conditions = [];
 
   // Recoger las condiciones simples
-  groupDiv.querySelectorAll('.conditions-container > div').forEach(condDiv => {
-    const selects = condDiv.querySelectorAll('select');
-    const inputs = condDiv.querySelectorAll('input');
-    // Manejar caso especial para atributo "sex"
-    if (selects.length >= 2 && selects[1].value === "sex") {
-      const sexSelect = condDiv.querySelector('select:last-of-type');
-      conditions.push({
-        model: selects[0].value,
-        attribute: selects[1].value,
-        operator: "==", // Operador fijo para sexo
-        value: sexSelect.value
-      });
-    }
-     // Manejar condiciones normales
-    else if (selects.length >= 3) {
-      const valueElement = condDiv.querySelector('input[type="number"], input[type="text"]') || 
-                          condDiv.querySelector('select:last-of-type');
-      const value = valueElement ? 
-                   (valueElement.tagName === 'SELECT' ? valueElement.value : 
-                    isNaN(valueElement.value) ? valueElement.value : Number(valueElement.value)) : 
-                   null;
+  // Solo procesar condiciones directas si no están dentro de un subgrupo
+  if (!groupDiv.closest('.group-box')) {
+    groupDiv.querySelectorAll('.conditions-container > div').forEach(condDiv => {
+      const selects = condDiv.querySelectorAll('select');
+      const inputs = condDiv.querySelectorAll('input');
       
-      if (value !== null) {
+      // Manejar caso especial para atributo "sex"
+      if (selects.length >= 2 && selects[1].value === "sex") {
+        const sexSelect = condDiv.querySelector('select:last-of-type');
         conditions.push({
           model: selects[0].value,
           attribute: selects[1].value,
-          operator: selects[2].value,
-          value: value
+          operator: "==",
+          value: sexSelect.value
         });
       }
-    }
-  });
+     // Manejar condiciones normales
+      else if (selects.length >= 3) {
+        const valueElement = condDiv.querySelector('input[type="number"], input[type="text"]') || 
+                            condDiv.querySelector('select:last-of-type');
+        const value = valueElement ? 
+                     (valueElement.tagName === 'SELECT' ? valueElement.value : 
+                      isNaN(valueElement.value) ? valueElement.value : Number(valueElement.value)) : 
+                     null;
+        
+        if (value !== null) {
+          conditions.push({
+            model: selects[0].value,
+            attribute: selects[1].value,
+            operator: selects[2].value,
+            value: value
+          });
+        }
+      }
+    });
+  }
 
-  // Recoger los subgrupos (recursivamente)
-  groupDiv.querySelectorAll(':scope > .group-box').forEach(subGroupDiv => {
-    conditions.push(collectGroup(subGroupDiv));
+   // Recoger los subgrupos (recursivamente)
+   groupDiv.querySelectorAll(':scope > .group-box').forEach(subGroupDiv => {
+    const subGroup = collectGroup(subGroupDiv);
+    if (subGroup.conditions.length > 0) {
+      conditions.push(subGroup);
+    }
   });
 
   return {

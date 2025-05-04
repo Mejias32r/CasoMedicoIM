@@ -14,6 +14,7 @@ from Caso_Medico.services.models import (
     Patient, TissueMetrics, Cerebrum, Cerebellum, LateralVentricles, 
     Caudate, Putamen, Thalamus, GlobusPallidus, Hippocampus, Amygdala, Accumbens
 )
+from datetime import datetime
 def borrar_datos():
     TissueMetrics.objects.all().delete()
     Patient.objects.all().delete()
@@ -27,24 +28,42 @@ def borrar_datos():
     Hippocampus.objects.all().delete()
     Amygdala.objects.all().delete()
     Accumbens.objects.all().delete()
+def safe_float(value):
+            try:
+                if pd.isna(value):  # Si es NaN de pandas
+                    return 0.0
+                if isinstance(value, str):
+                    value = value.replace(',', '.')
+                return float(value)
+            except (ValueError, TypeError):
+                return 0.0
+
+def validate_job_number(job_number):
+    if job_number.startswith(","):
+        partes = job_number.split(",")
+        if len(partes) >= 3:
+            return partes[2]  # El tercer elemento (índice 2)
+    return job_number  # Si no empieza con coma, lo devuelve igual
 
 def insert_data_from_excel(file_path):
-    df = pd.read_excel(file_path)
+    print("Empezamos con la extracción de datos del Excel")
+    print("Ruta del archivo Excel:", file_path)
+    df = pd.read_excel(file_path, engine='openpyxl')
     borrar_datos()
     print("Columnas encontradas en el Excel:", df.columns.tolist())
     for index, row in df.iterrows():
         patient, created = Patient.objects.get_or_create(
-    job_number=row["Patient ID"],
-    defaults={
-        "sex": row["Sex"],
-        "age": row["Age"],
-        "report_date": row["Report Date"],
-        "scale_factor": row["Scale factor"],
-        "snr": row["SNR"],
-        "msnr": row["mSNR"],
-        "qc": row["QC"],
-    },
-)
+        job_number=validate_job_number(row["Patient ID"]),
+        defaults={
+            "sex": row["Sex"],
+            "age": int(row["Age"]) if str(row["Age"]).isdigit() else None,
+            "report_date": datetime.strptime(str(row["Report Date"]), "%d-%b-%Y").date() if isinstance(row["Report Date"], str) else row["Report Date"],
+            "scale_factor": row["Scale factor"],
+            "snr": row["SNR"],
+            "msnr": row["mSNR"],
+            "qc": row["QC"],
+        },
+        )
 
         TissueMetrics.objects.create(
             patient_id=patient.job_number,
@@ -92,7 +111,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Cerebelum Right %'],
             left_cm3=row['Cerebelum Left cm3'],
             left_percentage=row['Cerebelum Left %'],
-            asymmetry=row['Cerebelum Assymetry']
+            asymmetry=safe_float(row['Cerebelum Assymetry'])
         )
 
         LateralVentricles.objects.create(
@@ -103,7 +122,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Lateral ventricles Right %'],
             left_cm3=row['Lateral ventricles Left cm3'],
             left_percentage=row['Lateral ventricles Left %'],
-            asymmetry=row['Lateral ventricles Asymmetry']
+            asymmetry=safe_float(row['Lateral ventricles Asymmetry'])
         )
 
         Caudate.objects.create(
@@ -114,7 +133,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Caudate Right %'],
             left_cm3=row['Caudate Left cm3'],
             left_percentage=row['Caudate Left %'],
-            asymmetry=row['Caudate Asymmetry']
+            asymmetry=safe_float(row['Caudate Asymmetry'])
         )
 
         Putamen.objects.create(
@@ -125,7 +144,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Putamen Right %'],
             left_cm3=row['Putamen Left cm3'],
             left_percentage=row['Putamen Left %'],
-            asymmetry=row['Putamen Asymmetry']
+            asymmetry=safe_float(row['Putamen Asymmetry'])
         )
 
         Thalamus.objects.create(
@@ -136,9 +155,9 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Thalamus Right %'],
             left_cm3=row['Thalamus Left cm3'],
             left_percentage=row['Thalamus Left %'],
-            asymmetry=row['Thalamus Asymmetry']
+            asymmetry=safe_float(row['Thalamus Asymmetry'])
         )
-
+        
         GlobusPallidus.objects.create(
             patient_id=patient.job_number,
             total_cm3=row['Globus Pallidus Total cm3'],
@@ -147,7 +166,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Globus Pallidus Right %'],
             left_cm3=row['Globus Pallidus Left cm3'],
             left_percentage=row['Globus Pallidus Left %'],
-            asymmetry=row['Globus Pallidus Asymmetry']
+            asymmetry=safe_float(row['Globus Pallidus Asymmetry'])
         )
 
         Hippocampus.objects.create(
@@ -158,7 +177,7 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Hippocampus Right %'],
             left_cm3=row['Hippocampus Left cm3'],
             left_percentage=row['Hippocampus Left %'],
-            asymmetry=row['Hippocampus Asymmetry']
+            asymmetry=safe_float(row['Hippocampus Asymmetry'])
         )
 
         Amygdala.objects.create(
@@ -169,9 +188,14 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Amygdala Right %'],
             left_cm3=row['Amygdala Left cm3'],
             left_percentage=row['Amygdala Left %'],
-            asymmetry=row['Amygdala Asymmetry']
+            asymmetry=safe_float(row['Amygdala Asymmetry'])
         )
-
+        asymmetry_str = str(row['Accumbens Asymmetry,job_number,Patient ID'])[:4]
+        asymmetry_str = asymmetry_str.replace(',', '.')
+        try:
+            asymmetry_value = float(asymmetry_str)
+        except ValueError:
+            asymmetry_value = 0.0
         Accumbens.objects.create(
             patient_id=patient.job_number,
             total_cm3=row['Accumbens Total cm3'],
@@ -180,10 +204,10 @@ def insert_data_from_excel(file_path):
             right_percentage=row['Accumbens Right %'],
             left_cm3=row['Accumbens Left cm3'],
             left_percentage=row['Accumbens Left %'],
-            asymmetry = str(row['Accumbens Asymmetry,job_number,Patient ID'])[:4]
+            asymmetry=asymmetry_value,
         )
-    print("¡Datos insertados con éxito!")
+        print("¡Datos insertados con éxito!")
 
 if __name__ == "__main__":
-    excel_path = os.path.join(BASE_DIR, 'volbrain_data.xlsx') # Ruta real del archivo descargado
+    excel_path = os.path.join(BASE_DIR, 'volbrain_data.xslt') # Ruta real del archivo descargado
     insert_data_from_excel(excel_path)

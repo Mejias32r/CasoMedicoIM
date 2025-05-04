@@ -129,6 +129,7 @@
     <div class = "right-panel">
         <div class = "box">
             <h4>RESULTADOS</h4>
+            <div id = resultados-container></div>
         </div>
     </div>
 </div>
@@ -360,13 +361,22 @@ function ejecutarConsulta() {
       throw new Error('Error en la consulta');
     })
     .then(result => {
-      console.log('Job IDs encontrados:', result.job_ids);
-      alert('Consulta exitosa, pacientes encontrados: ' + result.job_ids.join(', '));
+      const resultContainer = document.getElementById('resultados-container');
+      if (result.job_ids && result.job_ids.length > 0) {
+        resultContainer.innerHTML = `
+          <p>Consulta exitosa. Pacientes encontrados:</p>
+          <ul>${result.job_ids.map(id => `<li>${id}</li>`).join('')}</ul>
+        `;
+      } else {
+        resultContainer.innerHTML = <p> No se encontraron resultados. </p>
+      }
+    
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error ejecutando consulta');
-    });
+      const resultContainer = document.getElementById('resultados-container');
+      resultContainer.innerHTML = `<p style="color:red;">Error ejecutando consulta</p>`;
+    })
   }
   function getCookie(name) {
     let cookieValue = null;

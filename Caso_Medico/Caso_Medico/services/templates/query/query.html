@@ -1,430 +1,428 @@
-{%extends 'base/base.html'%}
-{% block content %}
-<title>Generador de Query</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 16px;
-      background-color: #f1f4f9;
-    }
+  {%extends 'base/base.html'%}
+  {% block content %}
+  <title>Generador de Query</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16px;
+        background-color: #f1f4f9;
+      }
 
-    .main-content {
-      margin-left: 30px; /* margen para simular la barra lateral */
-      padding: 20px;
-      display: flex;
-      gap: 40px;
-      height: calc(100vh - 40px); /* altura total de pantalla menos padding */
-      box-sizing: border-box;
-    }
+      .main-content {
+        margin-left: 30px; /* margen para simular la barra lateral */
+        padding: 20px;
+        display: flex;
+        gap: 40px;
+        height: calc(100vh - 40px); /* altura total de pantalla menos padding */
+        box-sizing: border-box;
+      }
 
-    .left-panel {
+      .left-panel {
+        background-color: white;
+        padding: 40px 40px 40px 50px;
+        flex: 1;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16px;
+
+      }
+
+      .right-panel {
+        background-color: white;
+        padding: 20px 70px 40px 50px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16px;
+        
+      }
+
+      .box {
+        background-color: white;
+        padding: 90px 90px 40px 50px;
+        flex: 1;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 16px;
+      }
+      .bottom-box {
+      margin-left: 30px;
+      margin-top: 20px;
+      margin-right: 20px;
       background-color: white;
-      padding: 40px 40px 40px 50px;
-      flex: 1;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 16px;
-
-    }
-
-    .right-panel {
-      background-color: white;
-      padding: 20px 70px 40px 50px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 16px;
-      
-    }
-
-    .box {
-      background-color: white;
-      padding: 90px 90px 40px 50px;
-      flex: 1;
-      border-radius: 10px;
       padding: 20px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       font-family: 'Segoe UI', sans-serif;
       font-size: 16px;
     }
-    .bottom-box {
-    margin-left: 30px;
-    margin-top: 20px;
-    margin-right: 20px;
-    background-color: white;
+
+      .button {
+        background-color: #f1f4f9;
+        border: none;
+        padding: 13px 39px;
+        margin: 5px 0;
+        border-radius: 20px;
+        cursor: pointer;
+        width: fit-content;
+        font-size: 19px;
+        transition: background-color 0.2s;
+      }
+
+      .button:hover {
+        background-color: #e0e3e7;
+      }
+
+      .group-section{
+        margin-top: 20px;
+      }
+
+      .group-box{
+        background-color : #f5f7fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        width: fit-content;
+      }
+
+      .group-box {
+    background-color: #f5f7fa;
     border-radius: 10px;
     padding: 20px;
+    margin-top: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 16px;
+    width: fit-content;
+    position: relative;
   }
 
-    .button {
-      background-color: #f1f4f9;
-      border: none;
-      padding: 13px 39px;
-      margin: 5px 0;
-      border-radius: 20px;
-      cursor: pointer;
-      width: fit-content;
-      font-size: 19px;
-      transition: background-color 0.2s;
-    }
 
-    .button:hover {
-      background-color: #e0e3e7;
-    }
+      select{
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+  </style>
+  <div class="main-content">
+      <div class="left-panel">
+          <h4> GENERADOR DE QUERY </h4>
+          <button class="button" id="add-group-button" onclick="showGroupOptions()">Añadir grupo</button>
+          <button class="button" onclick="alert('Añadir condición en grupo ${groupId}')">Añadir condición</button>
+          <button class="button" onclick="ejecutarConsulta()">Ejecutar consulta</button>
 
-    .group-section{
-      margin-top: 20px;
-    }
+        <div id = "groups-container"></div>
+      </div>
 
-    .group-box{
-      background-color : #f5f7fa;
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      width: fit-content;
-    }
+      <div class = "right-panel">
+          <div class = "box">
+              <h4>RESULTADOS</h4>
+              <div id = resultados-container></div>
+          </div>
+      </div>
+  </div>
 
-    .group-box {
-  background-color: #f5f7fa;
-  border-radius: 10px;
-  padding: 20px;
-  margin-top: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  width: fit-content;
-  position: relative;
-}
+  <script>
+    let groupId = 0;
+    let rootGroupCreated = false;
+
+    const clasesDisponibles = ["Patient", "TissueMetrics", "Cerebrum", "Cerebellum","LateralVentricles","Caudate", "Putamen", "GlobusPallidus", "Hippocampus", "Amygdala", "Accumbens"];
+    const atributosPorClase = {
+      "Patient": ["age", "sex"],
+      "TissueMetrics": ["tissue_wm_cm3", "tissue_gm_cm3", "t_gm_cm3", "t_gm_percentage"],
+      "Cerebrum": ["total_cm3", "asymmetry", "t_gm_cm3", "t_gm_percentage"],
+      "Cerebellum": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+      "LateralVentricles": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+      "Caudate": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+      "Putamen": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+      "GlobusPallidus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+      "Hippocampus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
+      "Amygdala": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
+      "Accumbens": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"]
+    };
+    const operadores = [">", "<", ">=", "<=", "==", "!="];
+
+    function addCondition(container) {
+      const div = document.createElement("div");
+      div.style.marginTop = "10px";
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.gap = "10px";
+
+      const claseSelect = document.createElement("select");
+      claseSelect.innerHTML = `<option disabled selected>Seleccionar clase</option>` +
+        clasesDisponibles.map(clase => `<option value="${clase}">${clase}</option>`).join("");
+
+      const atributoSelect = document.createElement("select");
+      const operadorSelect = document.createElement("select");
+      const valorInput = document.createElement("input");
+
+      valorInput.type = "number";
+      valorInput.style.padding = "8px";
+      valorInput.style.borderRadius = "8px";
+      valorInput.style.border = "1px solid #ccc";
+
+      atributoSelect.style.padding = "8px";
+      operadorSelect.style.padding = "8px";
+      claseSelect.style.padding = "8px";
+
+      // Rellenar atributos cuando se seleccione clase
+      claseSelect.addEventListener("change", () => {
+        const atributos = atributosPorClase[claseSelect.value] || [];
+        atributoSelect.innerHTML = atributos.map(attr => `<option value="${attr}">${attr}</option>`).join("");
+        operadorSelect.innerHTML = operadores.map(op => `<option value="${op}">${op}</option>`).join("");
+        operadorSelect.style.display = "inline"; // asegurarse que esté visible
+        if (!div.contains(operadorSelect)) div.insertBefore(operadorSelect, valorInput);
+      });
+
+      // Cambiar input/operador si atributo es sex
+      atributoSelect.addEventListener("change", () => {
+        if (atributoSelect.value === "sex") {
+          // Quitar operador
+          operadorSelect.style.display = "none";
+          
+          // Cambiar valorInput a un select de sexo
+          const selectSexo = document.createElement("select");
+          selectSexo.style.padding = "8px";
+          selectSexo.style.borderRadius = "8px";
+          selectSexo.style.border = "1px solid #ccc";
+          selectSexo.innerHTML = `
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          `;
+          div.replaceChild(selectSexo, valorInput);
+        } else {
+          // Mostrar operador
+          operadorSelect.style.display = "inline";
+          
+          // Asegurar que sea un input tipo number
+          const inputNuevo = document.createElement("input");
+          inputNuevo.type = "number";
+          inputNuevo.style.padding = "8px";
+          inputNuevo.style.borderRadius = "8px";
+          inputNuevo.style.border = "1px solid #ccc";
+          div.replaceChild(inputNuevo, div.querySelector('select:last-of-type, input[type="text"], input[type="number"]'));
+        }
+      });
+
+      // Botón para eliminar SOLO esta condición
+      const removeButton = document.createElement('button');
+      removeButton.innerHTML = '❌';
+      removeButton.style.cssText = 'background:none; border:none; font-size:20px; cursor:pointer; color:#777;';
+      removeButton.onclick = () => {
+        div.remove();
+      };
+
+      div.appendChild(claseSelect);
+      div.appendChild(atributoSelect);
+      div.appendChild(operadorSelect);
+      div.appendChild(valorInput);
+      div.appendChild(removeButton);
+
+      container.appendChild(div);
+  }
 
 
-    select{
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-</style>
-<div class="main-content">
-    <div class="left-panel">
-        <h4> GENERADOR DE QUERY </h4>
-        <button class="button" id="add-group-button" onclick="showGroupOptions()">Añadir grupo</button>
-        <button class="button" onclick="alert('Añadir condición en grupo ${groupId}')">Añadir condición</button>
-        <button class="button" onclick="ejecutarConsulta()">Ejecutar consulta</button>
+    function showGroupOptions() {
+      const container = document.getElementById('groups-container');
+      const addGroupButton = document.getElementById('add-group-button');
 
-      <div id = "groups-container"></div>
-    </div>
+      addGroup(container); // Crear el grupo raíz
+      addGroupButton.disabled = true; // Desactivar el botón
+      addGroupButton.style.opacity = 0.5; // Opcional: cambiar apariencia para que se vea desactivado
+      addGroupButton.style.cursor = "not-allowed"; // Cambiar el cursor
+  }
 
-    <div class = "right-panel">
-        <div class = "box">
-            <h4>RESULTADOS</h4>
-            <div id = resultados-container></div>
-        </div>
-    </div>
-</div>
+  function addGroup(parentElement) {
+    groupId++;
 
-<script>
-  let groupId = 0;
-  let rootGroupCreated = false;
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'group-box';
+    groupDiv.dataset.id = `group-${groupId}`;
 
-  const clasesDisponibles = ["Patient", "TissueMetrics", "Cerebrum", "Cerebellum","LateralVentricles","Caudate", "Putamen", "GlobusPallidus", "Hippocampus", "Amygdala", "Accumbens"];
-  const atributosPorClase = {
-    "Patient": ["age", "sex"],
-    "TissueMetrics": ["tissue_wm_cm3", "tissue_gm_cm3", "t_gm_cm3", "t_gm_percentage"],
-    "Cerebrum": ["total_cm3", "asymmetry", "t_gm_cm3", "t_gm_percentage"],
-    "Cerebellum": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
-    "LateralVentricles": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
-    "Caudate": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
-    "Putamen": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
-    "GlobusPallidus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
-    "Hippocampus": ["total_cm3", "total_percentage","t_gm_cm3", "t_gm_percentage"],
-    "Amygdala": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"],
-    "Accumbens": ["total_cm3", "total_percentage", "t_gm_cm3", "t_gm_percentage"]
-  };
-  const operadores = [">", "<", ">=", "<=", "==", "!="];
+    const conditionContainer = document.createElement('div');
+    conditionContainer.className = 'conditions-container';
 
-  function addCondition(container) {
-    const div = document.createElement("div");
-    div.style.marginTop = "10px";
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.gap = "10px";
-
-    const claseSelect = document.createElement("select");
-    claseSelect.innerHTML = `<option disabled selected>Seleccionar clase</option>` +
-      clasesDisponibles.map(clase => `<option value="${clase}">${clase}</option>`).join("");
-
-    const atributoSelect = document.createElement("select");
-    const operadorSelect = document.createElement("select");
-    const valorInput = document.createElement("input");
-
-    valorInput.type = "number";
-    valorInput.style.padding = "8px";
-    valorInput.style.borderRadius = "8px";
-    valorInput.style.border = "1px solid #ccc";
-
-    atributoSelect.style.padding = "8px";
-    operadorSelect.style.padding = "8px";
-    claseSelect.style.padding = "8px";
-
-    // Rellenar atributos cuando se seleccione clase
-    claseSelect.addEventListener("change", () => {
-      const atributos = atributosPorClase[claseSelect.value] || [];
-      atributoSelect.innerHTML = atributos.map(attr => `<option value="${attr}">${attr}</option>`).join("");
-      operadorSelect.innerHTML = operadores.map(op => `<option value="${op}">${op}</option>`).join("");
-      operadorSelect.style.display = "inline"; // asegurarse que esté visible
-      if (!div.contains(operadorSelect)) div.insertBefore(operadorSelect, valorInput);
-    });
-
-    // Cambiar input/operador si atributo es sex
-    atributoSelect.addEventListener("change", () => {
-      if (atributoSelect.value === "sex") {
-        // Quitar operador
-        operadorSelect.style.display = "none";
-        
-        // Cambiar valorInput a un select de sexo
-        const selectSexo = document.createElement("select");
-        selectSexo.style.padding = "8px";
-        selectSexo.style.borderRadius = "8px";
-        selectSexo.style.border = "1px solid #ccc";
-        selectSexo.innerHTML = `
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        `;
-        div.replaceChild(selectSexo, valorInput);
-      } else {
-        // Mostrar operador
-        operadorSelect.style.display = "inline";
-        
-        // Asegurar que sea un input tipo number
-        const inputNuevo = document.createElement("input");
-        inputNuevo.type = "number";
-        inputNuevo.style.padding = "8px";
-        inputNuevo.style.borderRadius = "8px";
-        inputNuevo.style.border = "1px solid #ccc";
-        div.replaceChild(inputNuevo, div.querySelector('select:last-of-type, input[type="text"], input[type="number"]'));
+    // Selector AND/OR
+    const logicSelect = document.createElement('select');
+    logicSelect.innerHTML = `<option value="AND">AND</option><option value="OR">OR</option>`;
+    logicSelect.addEventListener('change', () => {
+      if (conditionContainer.children.length === 0) {
+        addCondition(conditionContainer);
       }
     });
 
-    // Botón para eliminar SOLO esta condición
     const removeButton = document.createElement('button');
     removeButton.innerHTML = '❌';
-    removeButton.style.cssText = 'background:none; border:none; font-size:20px; cursor:pointer; color:#777;';
     removeButton.onclick = () => {
-      div.remove();
-    };
-
-    div.appendChild(claseSelect);
-    div.appendChild(atributoSelect);
-    div.appendChild(operadorSelect);
-    div.appendChild(valorInput);
-    div.appendChild(removeButton);
-
-    container.appendChild(div);
-}
-
-
-  function showGroupOptions() {
-    const container = document.getElementById('groups-container');
-    const addGroupButton = document.getElementById('add-group-button');
-
-    addGroup(container); // Crear el grupo raíz
-    addGroupButton.disabled = true; // Desactivar el botón
-    addGroupButton.style.opacity = 0.5; // Opcional: cambiar apariencia para que se vea desactivado
-    addGroupButton.style.cursor = "not-allowed"; // Cambiar el cursor
-}
-
-function addGroup(parentElement) {
-  groupId++;
-
-  const groupDiv = document.createElement('div');
-  groupDiv.className = 'group-box';
-  groupDiv.dataset.id = `group-${groupId}`;
-
-  const conditionContainer = document.createElement('div');
-  conditionContainer.className = 'conditions-container';
-
-  // Selector AND/OR
-  const logicSelect = document.createElement('select');
-  logicSelect.innerHTML = `<option value="AND">AND</option><option value="OR">OR</option>`;
-  logicSelect.addEventListener('change', () => {
-    if (conditionContainer.children.length === 0) {
-      addCondition(conditionContainer);
-    }
-  });
-
-  const removeButton = document.createElement('button');
-  removeButton.innerHTML = '❌';
-  removeButton.onclick = () => {
-    groupDiv.remove();
-    const container = document.getElementById('groups-container');
-    // Si ya no queda ningún grupo, reactivamos el botón
-    if (container.children.length === 0) {
-      const addGroupButton = document.getElementById('add-group-button');
-      addGroupButton.disabled = false;
-      addGroupButton.style.opacity = 1;
-      addGroupButton.style.cursor = "pointer";
-    }
-  };
-  removeButton.style.cssText = 'background:none; border:none; font-size:20px; cursor:pointer; color:#777;';
-
-  const topRow = document.createElement('div');
-  topRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
-  topRow.appendChild(logicSelect);
-  topRow.appendChild(removeButton);
-
-  // Botones para añadir condición o grupo
-  const addCondBtn = document.createElement('button');
-  addCondBtn.className = 'button';
-  addCondBtn.textContent = 'Añadir condición';
-  addCondBtn.onclick = () => addCondition(conditionContainer);
-
-  const addGroupBtn = document.createElement('button');
-  addGroupBtn.className = 'button';
-  addGroupBtn.textContent = 'Añadir grupo';
-  addGroupBtn.onclick = () => addGroup(groupDiv);
-
-  // Montar todo
-  groupDiv.appendChild(topRow);
-  groupDiv.appendChild(conditionContainer);
-  groupDiv.appendChild(addCondBtn);
-  groupDiv.appendChild(addGroupBtn);
-
-  parentElement.appendChild(groupDiv);
-}
-
-function collectGroup(groupDiv) {
-  const logic = groupDiv.querySelector('select').value;
-  const conditions = [];
-
-  // Recoger las condiciones simples
-  // Solo procesar condiciones directas si no están dentro de un subgrupo
-  if (!groupDiv.closest('.group-box')) {
-    groupDiv.querySelectorAll('.conditions-container > div').forEach(condDiv => {
-      const selects = condDiv.querySelectorAll('select');
-      const inputs = condDiv.querySelectorAll('input');
-      
-      // Manejar caso especial para atributo "sex"
-      if (selects.length >= 2 && selects[1].value === "sex") {
-        const sexSelect = condDiv.querySelector('select:last-of-type');
-        conditions.push({
-          model: selects[0].value,
-          attribute: selects[1].value,
-          operator: "==",
-          value: sexSelect.value
-        });
+      groupDiv.remove();
+      const container = document.getElementById('groups-container');
+      // Si ya no queda ningún grupo, reactivamos el botón
+      if (container.children.length === 0) {
+        const addGroupButton = document.getElementById('add-group-button');
+        addGroupButton.disabled = false;
+        addGroupButton.style.opacity = 1;
+        addGroupButton.style.cursor = "pointer";
       }
-     // Manejar condiciones normales
-      else if (selects.length >= 3) {
-        const valueElement = condDiv.querySelector('input[type="number"], input[type="text"]') || 
-                            condDiv.querySelector('select:last-of-type');
-        const value = valueElement ? 
-                     (valueElement.tagName === 'SELECT' ? valueElement.value : 
-                      isNaN(valueElement.value) ? valueElement.value : Number(valueElement.value)) : 
-                     null;
+    };
+    removeButton.style.cssText = 'background:none; border:none; font-size:20px; cursor:pointer; color:#777;';
+
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
+    topRow.appendChild(logicSelect);
+    topRow.appendChild(removeButton);
+
+    // Botones para añadir condición o grupo
+    const addCondBtn = document.createElement('button');
+    addCondBtn.className = 'button';
+    addCondBtn.textContent = 'Añadir condición';
+    addCondBtn.onclick = () => addCondition(conditionContainer);
+
+    const addGroupBtn = document.createElement('button');
+    addGroupBtn.className = 'button';
+    addGroupBtn.textContent = 'Añadir grupo';
+    addGroupBtn.onclick = () => addGroup(groupDiv);
+
+    // Montar todo
+    groupDiv.appendChild(topRow);
+    groupDiv.appendChild(conditionContainer);
+    groupDiv.appendChild(addCondBtn);
+    groupDiv.appendChild(addGroupBtn);
+
+    parentElement.appendChild(groupDiv);
+  }
+
+  function collectGroup(groupDiv) {
+    const logic = groupDiv.querySelector('select').value;
+    const conditions = [];
+
+    // Recoger las condiciones simples
+    // Solo procesar condiciones directas si no están dentro de un subgrupo
+      groupDiv.querySelectorAll('.conditions-container > div').forEach(condDiv => {
+        const selects = condDiv.querySelectorAll('select');
+        const inputs = condDiv.querySelectorAll('input');
         
-        if (value !== null) {
+        // Manejar caso especial para atributo "sex"
+        if (selects.length >= 2 && selects[1].value === "sex") {
+          const sexSelect = condDiv.querySelector('select:last-of-type');
           conditions.push({
             model: selects[0].value,
             attribute: selects[1].value,
-            operator: selects[2].value,
-            value: value
+            operator: "==",
+            value: sexSelect.value
           });
         }
+      // Manejar condiciones normales
+        else if (selects.length >= 3) {
+          const valueElement = condDiv.querySelector('input[type="number"], input[type="text"]') || 
+                              condDiv.querySelector('select:last-of-type');
+          const value = valueElement ? 
+                      (valueElement.tagName === 'SELECT' ? valueElement.value : 
+                        isNaN(valueElement.value) ? valueElement.value : Number(valueElement.value)) : 
+                      null;
+          
+          if (value !== null) {
+            conditions.push({
+              model: selects[0].value,
+              attribute: selects[1].value,
+              operator: selects[2].value,
+              value: value
+            });
+          }
+        }
+      });
+
+    // Recoger los subgrupos (recursivamente)
+    groupDiv.querySelectorAll(':scope > .group-box').forEach(subGroupDiv => {
+      const subGroup = collectGroup(subGroupDiv);
+      if (subGroup.conditions.length > 0) {
+        conditions.push(subGroup);
       }
     });
+
+    return {
+      connector: logic,
+      conditions: conditions.length > 0 ? conditions : []
+    };
   }
 
-   // Recoger los subgrupos (recursivamente)
-   groupDiv.querySelectorAll(':scope > .group-box').forEach(subGroupDiv => {
-    const subGroup = collectGroup(subGroupDiv);
-    if (subGroup.conditions.length > 0) {
-      conditions.push(subGroup);
+  function buildQueryData() {
+    const container = document.getElementById('groups-container');
+    const rootGroup = container.querySelector('.group-box');
+    if (!rootGroup) {
+      alert('No hay grupo raíz creado');
+      return null;
     }
-  });
-
-  return {
-    connector: logic,
-    conditions: conditions.length > 0 ? conditions : []
-  };
-}
-
-function buildQueryData() {
-  const container = document.getElementById('groups-container');
-  const rootGroup = container.querySelector('.group-box');
-  if (!rootGroup) {
-    alert('No hay grupo raíz creado');
-    return null;
+    return collectGroup(rootGroup);
   }
-  return collectGroup(rootGroup);
-}
-function ejecutarConsulta() {
-    const data = buildQueryData();
-    if (!data) return;
+  function ejecutarConsulta() {
+      const data = buildQueryData();
+      if (!data) return;
 
-    fetch('/query-builder', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-      throw new Error('Error en la consulta');
-    })
-    .then(result => {
-      const resultContainer = document.getElementById('resultados-container');
-      if (result.job_ids && result.job_ids.length > 0) {
-        resultContainer.innerHTML = `
-          <p>Consulta exitosa. Pacientes encontrados:</p>
-          <ul>${result.job_ids.map(id => `<li>${id}</li>`).join('')}</ul>
-        `;
-      } else {
-        resultContainer.innerHTML = `<p>No se encontraron resultados.</p>`;
-      }
-    
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      const resultContainer = document.getElementById('resultados-container');
-      resultContainer.innerHTML = `<p style="color:red;">Error ejecutando consulta</p>`;
-    })
-  }
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+      fetch('/query-builder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
         }
+        throw new Error('Error en la consulta');
+      })
+      .then(result => {
+        const resultContainer = document.getElementById('resultados-container');
+        if (result.job_ids && result.job_ids.length > 0) {
+          resultContainer.innerHTML = `
+            <p>Consulta exitosa. Pacientes encontrados:</p>
+            <ul>${result.job_ids.map(id => `<li>${id}</li>`).join('')}</ul>
+          `;
+        } else {
+          resultContainer.innerHTML = `<p>No se encontraron resultados.</p>`;
+        }
+      
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        const resultContainer = document.getElementById('resultados-container');
+        resultContainer.innerHTML = `<p style="color:red;">Error ejecutando consulta</p>`;
+      })
     }
-    return cookieValue;
-}
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
 
 
 
 
-</script>
+  </script>
 
-    
-{% endblock content%}
+      
+  {% endblock content%}

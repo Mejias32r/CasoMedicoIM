@@ -110,7 +110,7 @@ def parse_conditions(data):
             field = attribute
 
         lookup_map = {
-            "=": "",
+            "==": "",
             ">": "__gt",
             "<": "__lt",
             ">=": "__gte",

@@ -38,23 +38,32 @@ def safe_float(value):
             except (ValueError, TypeError):
                 return 0.0
 
+def validate_job_number(job_number):
+    if job_number.startswith(","):
+        partes = job_number.split(",")
+        if len(partes) >= 3:
+            return partes[2]  # El tercer elemento (índice 2)
+    return job_number  # Si no empieza con coma, lo devuelve igual
+
 def insert_data_from_excel(file_path):
-    df = pd.read_excel(file_path)
+    print("Empezamos con la extracción de datos del Excel")
+    print("Ruta del archivo Excel:", file_path)
+    df = pd.read_excel(file_path, engine='openpyxl')
     borrar_datos()
     print("Columnas encontradas en el Excel:", df.columns.tolist())
     for index, row in df.iterrows():
         patient, created = Patient.objects.get_or_create(
-    job_number=row["Patient ID"],
-    defaults={
-        "sex": row["Sex"],
-        "age": int(row["Age"]) if str(row["Age"]).isdigit() else None,
-        "report_date": datetime.strptime(str(row["Report Date"]), "%d-%b-%Y").date() if isinstance(row["Report Date"], str) else row["Report Date"],
-        "scale_factor": row["Scale factor"],
-        "snr": row["SNR"],
-        "msnr": row["mSNR"],
-        "qc": row["QC"],
-    },
-)
+        job_number=validate_job_number(row["Patient ID"]),
+        defaults={
+            "sex": row["Sex"],
+            "age": int(row["Age"]) if str(row["Age"]).isdigit() else None,
+            "report_date": datetime.strptime(str(row["Report Date"]), "%d-%b-%Y").date() if isinstance(row["Report Date"], str) else row["Report Date"],
+            "scale_factor": row["Scale factor"],
+            "snr": row["SNR"],
+            "msnr": row["mSNR"],
+            "qc": row["QC"],
+        },
+        )
 
         TissueMetrics.objects.create(
             patient_id=patient.job_number,
@@ -197,8 +206,8 @@ def insert_data_from_excel(file_path):
             left_percentage=row['Accumbens Left %'],
             asymmetry=asymmetry_value,
         )
-    print("¡Datos insertados con éxito!")
+        print("¡Datos insertados con éxito!")
 
 if __name__ == "__main__":
-    excel_path = os.path.join(BASE_DIR, 'volbrain_data.xlsx') # Ruta real del archivo descargado
+    excel_path = os.path.join(BASE_DIR, 'volbrain_data.xslt') # Ruta real del archivo descargado
     insert_data_from_excel(excel_path)
